@@ -95,3 +95,79 @@ sqrt_message retrieve_sqrt_message(char* frame) {
 
     return data;
 }
+
+char* assemble_date_query_frame(date_query query) {
+    int* header = query.header;
+    int request_id = query.request_id;
+    int converted_header[4];
+    int converted_req_id = htonl(request_id);
+    for (int i = 0; i < 4; ++i) {
+        converted_header[i] = htonl(header[i]);
+    }
+
+    char* frame = calloc(1, sizeof(int) * 4 + sizeof(int));
+    char* frame_traverser = frame;
+    memcpy(frame_traverser, converted_header, sizeof(int) * 4);
+    frame_traverser += sizeof(int) * 4;
+    memcpy(frame_traverser, &converted_req_id, sizeof(int));
+    return frame;
+}
+
+char* assemble_date_response_frame(date_response response) {
+    int* header = response.header;
+    int request_id = response.request_id;
+    int converted_header[4];
+    int converted_req_id = htonl(request_id);
+    for (int i = 0; i < 4; ++i) {
+        converted_header[i] = htonl(header[i]);
+    }
+
+    size_t converted_length = htonl(response.length);
+
+
+    char* frame = calloc(1, sizeof(int) * 4 + sizeof(int) + sizeof(size_t) + response.length);
+    char* frame_traverser = frame;
+
+    memcpy(frame_traverser, converted_header, sizeof(int) * 4);
+    frame_traverser += sizeof(int) * 4;
+
+    memcpy(frame_traverser, &converted_req_id, sizeof(int));
+    frame_traverser += sizeof(int);
+
+    memcpy(frame_traverser, &converted_length, sizeof(size_t));
+    frame_traverser += sizeof(size_t);
+
+    memcpy(frame_traverser, response.date_string, response.length);
+    return frame;
+}
+
+date_response retrieve_date_response(char* frame) {
+    int header[4];
+    char* frame_traverser = frame;
+    int request_id;
+    size_t length;
+    char* date_string;
+    date_response data;
+
+    memcpy(&header, frame_traverser, sizeof(int) * 4);
+    frame_traverser += sizeof(int) * 4;
+
+    memcpy(&request_id, frame_traverser, sizeof(int));
+    frame_traverser += sizeof(int);
+
+    memcpy(&length, frame_traverser, sizeof(size_t));
+    frame_traverser += sizeof(size_t);
+
+    length = ntohl(length);
+
+    date_string = malloc(length);
+    memcpy(date_string, frame_traverser, length);
+
+    for (int i = 0; i < 4; ++i) {
+        data.header[i] = ntohl(header[i]);
+    }
+    data.request_id = ntohl(request_id);
+    data.length = length;
+    data.date_string = date_string;
+    return data;
+}

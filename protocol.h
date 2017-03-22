@@ -42,5 +42,8 @@ enum header_type get_header_type(int* header);
 char* assemble_sqrt_frame(sqrt_message message);
 sqrt_data retrieve_sqrt_data(char* frame);
 sqrt_message retrieve_sqrt_message(char* frame);
+char* assemble_date_query_frame(date_query query);
+char* assemble_date_response_frame(date_response response);
+date_response retrieve_date_response(char* frame);
 
 #endif //SOCKETS_PROTOCOL_H
