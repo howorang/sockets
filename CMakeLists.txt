@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.6)
+project(sockets)
+
+set(CMAKE_C_STANDARD 99)
+set(SERVER_SOURCE_FILES main.c protocol.c protocol.h endianness.h endianness.c client_handler.h client_hanlder.c)
+set(CLIENT_SOURCE_FILES client.c protocol.c protocol.h endianness.h endianness.c)
+add_executable(server ${SERVER_SOURCE_FILES})
+add_executable(client ${CLIENT_SOURCE_FILES})
+target_link_libraries(server pthread)
+target_link_libraries(server m)
