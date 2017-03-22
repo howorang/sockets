@@ -25,7 +25,8 @@ typedef struct date_query {
 typedef struct date_response {
     int header[4];
     int request_id;
-    double number;
+    size_t length;
+    char* date_string;
 } date_response;
 
 
