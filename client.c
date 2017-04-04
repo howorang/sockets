@@ -15,7 +15,6 @@ int main ()
     socklen_t len;
     struct sockaddr_in address;
     int result;
-    char ch = 'A';
 
     /*  Create a socket for the client.  */
 
@@ -39,24 +38,54 @@ int main ()
     }
 
     /*  We can now read/write via sockfd.  */
-    sqrt_message query_message;
-    query_message.header[0] = 0;
-    query_message.header[1] = 0;
-    query_message.header[2] = 0;
-    query_message.header[3] = 1;
-    query_message.request_id = 1;
-    query_message.number = 4;
-    char* frame = assemble_sqrt_frame(query_message);
-    size_t  size_of_frame = sizeof(int) * 4 + sizeof(int) + sizeof(double);
-    write (sockfd, frame, size_of_frame);
+    date_query date_query_message;
+    date_query_message.header[0] = 0;
+    date_query_message.header[1] = 0;
+    date_query_message.header[2] = 0;
+    date_query_message.header[3] = 2;
+    date_query_message.request_id = 1;
+    char* date_frame = malloc(sizeof(char) * 200);
+    size_t bytes_to_send_date = assemble_date_query_frame(date_query_message, date_frame);
 
-    char *message_frame_buf = malloc(size_of_frame);
-    read(sockfd, message_frame_buf, size_of_frame);
-    sqrt_message response_message = retrieve_sqrt_message(message_frame_buf);
-    printf("%f",response_message.number);
+    sqrt_message sqrt_query_message;
+    sqrt_query_message.header[0] = 0;
+    sqrt_query_message.header[1] = 0;
+    sqrt_query_message.header[2] = 0;
+    sqrt_query_message.header[3] = 1;
+    sqrt_query_message.request_id = 2;
+    sqrt_query_message.number = 16;
+    char* sqrt_frame = malloc(sizeof(char) * 200);
+    size_t bytes_to_send_sqrt = assemble_sqrt_frame(sqrt_query_message, sqrt_frame);
 
-    free(frame);
-    free(message_frame_buf);
+    write (sockfd, date_frame, bytes_to_send_date);
+    write (sockfd, sqrt_frame, bytes_to_send_sqrt);
+
+    while (1) {
+        enum header_type headerType = get_header(sockfd);
+        int req_id = get_req_id(sockfd);
+        if (req_id == 1) {
+            int length = get_length(sockfd);
+            char *buf = malloc(length * sizeof(char));
+            read(sockfd, buf, length);
+            printf("%s", buf);
+            free(buf);
+        }
+
+        if (req_id == 2) {
+            size_t  data_size = sizeof(double);
+            char* buf = malloc(data_size);
+            read(sockfd, buf, data_size);
+            sqrt_data data = retrieve_sqrt_data(buf);
+            double sqrt = data.number;
+            printf("fff\n");
+            printf("%lf\n", sqrt);
+            printf("Wydrukowano");
+            free(buf);
+        }
+    }
+
+    free(sqrt_frame);
+    free(date_frame);
     close (sockfd);
     exit (0);
 }

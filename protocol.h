@@ -12,8 +12,6 @@ typedef struct sqrt_message {
 } sqrt_message;
 
 typedef struct sqrt_data {
-    int header[4];
-    int request_id;
     double number;
 } sqrt_data;
 
@@ -39,11 +37,13 @@ enum header_type {
 };
 
 enum header_type get_header_type(int* header);
-char* assemble_sqrt_frame(sqrt_message message);
+size_t assemble_sqrt_frame(sqrt_message message, char* frame);
 sqrt_data retrieve_sqrt_data(char* frame);
 sqrt_message retrieve_sqrt_message(char* frame);
-char* assemble_date_query_frame(date_query query);
-char* assemble_date_response_frame(date_response response);
+size_t assemble_date_query_frame(date_query query, char* frame);
+size_t assemble_date_response_frame(date_response response, char* frame);
 date_response retrieve_date_response(char* frame);
-
+enum header_type get_header(int socketfd);
+int get_req_id(int socketfd);
+size_t get_length(int socketfd);
 #endif //SOCKETS_PROTOCOL_H

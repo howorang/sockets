@@ -21,8 +21,7 @@ int main() {
     /*  Create a connection queue, ignore child exit details and wait for clients.  */
 
     listen (server_sockfd, 5);
-    char* string = malloc(sizeof(char) * 50);
-    printf(get_current_time_string(string));
+    char* string = malloc(sizeof(char) * 100);
 
     while (1) {
         pthread_t current_thread;
