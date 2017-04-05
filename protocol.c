@@ -19,7 +19,7 @@ enum header_type get_header_type(int* header) {
     if(header [3] == 1) {
         if(header[0] == 0) {
             return SQRT_QUERY;  
-        } else if (header[0] == 0) {
+        } else if (header[0] == 1) {
             return SQRT_RESPONSE;
         }
     }
